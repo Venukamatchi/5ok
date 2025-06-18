@@ -27,18 +27,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-cache-${{ hashFiles('5ok/project/package-lock.json') }}
+          key: ${{ runner.os }}-npm-cache-${{ hashFiles('project/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-cache-
 
       - name: Install dependencies
         run: npm ci
-        working-directory: 5ok/project
+        working-directory: project
 
       - name: Build
         run: npm run build --if-present
-        working-directory: 5ok/project
+        working-directory: project
 
       - name: Test
         run: npm test
-        working-directory: 5ok/project
+        working-directory: project
