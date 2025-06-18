@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Form</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #eef; }
+    form { background: #fff; padding: 20px; border-radius: 8px; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+
+<h1>📝 Recipe Form</h1>
+
+<form id="recipeForm">
+  <input type="text" name="title" placeholder="Title" required />
+  <input type="text" name="cuisine" placeholder="Cuisine" />
+  <input type="number" name="rating" step="0.1" placeholder="Rating" />
+  <input type="number" name="total_time" placeholder="Total Time (minutes)" />
+  <textarea name="description" placeholder="Description"></textarea>
+  <textarea name="ingredients" placeholder="Ingredients (comma-separated)"></textarea>
+  <textarea name="instructions" placeholder="Instructions (comma-separated)"></textarea>
+  <button type="submit">💾 Save</button>
+  <button type="button" onclick="window.history.back()">Cancel</button>
+</form>
+
+<script>
+const id = new URLSearchParams(window.location.search).get("id");
+const form = document.getElementById("recipeForm");
+
+if (id) {
+  fetch(`http://localhost:5000/api/recipes/detail/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      form.title.value = data.title || "";
+      form.cuisine.value = data.cuisine || "";
+      form.rating.value = data.rating || "";
+      form.total_time.value = data.total_time || "";
+      form.description.value = data.description || "";
+      form.ingredients.value = data.ingredients?.join(", ") || "";
+      form.instructions.value = data.instructions?.join(", ") || "";
+    });
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const body = {
+    title: form.title.value,
+    cuisine: form.cuisine.value,
+    rating: parseFloat(form.rating.value),
+    total_time: parseInt(form.total_time.value),
+    description: form.description.value,
+    ingredients: form.ingredients.value.split(",").map(i => i.trim()),
+    instructions: form.instructions.value.split(",").map(i => i.trim())
+  };
+
+  const method = id ? 'PUT' : 'POST';
+  const url = id
+    ? `http://localhost:5000/api/recipes/edit/${id}`
+    : `http://localhost:5000/api/recipes/add`;
+
+  await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  window.location = "index.html";
+});
+</script>
+
+</body>
+</html>
+

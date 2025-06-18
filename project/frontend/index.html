@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Securin Recipes</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f8f8f8; }
+    .recipe { background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .meta { font-size: 14px; color: #444; margin-top: 4px; }
+    input { padding: 8px; width: 300px; }
+    button { padding: 8px 10px; margin-left: 5px; }
+    .actions button { margin-right: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>🍽️ Securin Recipes</h1>
+
+<input id="searchBox" placeholder="Search by title or cuisine..." />
+<button onclick="loadRecipes()">Search</button>
+
+<div id="recipesContainer">Loading...</div>
+
+<script>
+const API = "http://localhost:5000/api/recipes";
+
+async function loadRecipes() {
+  const query = document.getElementById("searchBox").value.trim();
+
+  try {
+    const res = await fetch(query ? `${API}/search/${query}` : API);
+    const data = await res.json();
+    console.log("📦 API data:", data); // 👈 you'll see data here
+
+    const container = document.getElementById("recipesContainer");
+    container.innerHTML = "";
+
+    if (!Array.isArray(data) || data.length === 0) {
+      container.innerHTML = "<p>No recipes found.</p>";
+      return;
+    }
+
+    data.forEach(r => {
+      container.innerHTML += `
+        <div class="recipe">
+          <h3><a href="detail.html?id=${r._id}">${r.title || "Untitled"}</a></h3>
+          <div class="meta">
+            Cuisine: ${r.cuisine || "N/A"}<br>
+            Rating: ${r.rating || "N/A"} | Time: ${r.total_time || "?"} mins
+          </div>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error("❌ Failed to load recipes:", err);
+    document.getElementById("recipesContainer").innerHTML = `
+      <p style="color:red;">❌ Failed to load recipes. Make sure backend is running.<br>${err.message}</p>
+    `;
+  }
+}
+
+loadRecipes();
+</script>
+
+</body>
+</html>
+

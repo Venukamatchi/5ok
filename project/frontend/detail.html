@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Detail</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+    .content { background: #fff; padding: 20px; border-radius: 8px; }
+    .section { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>📋 Recipe Detail</h1>
+<div class="content" id="recipeDetail">Loading...</div>
+<button onclick="window.history.back()">⬅ Back</button>
+
+<script>
+(async () => {
+  const id = new URLSearchParams(window.location.search).get("id");
+
+  if (!id || id === "undefined") {
+    document.getElementById("recipeDetail").innerHTML = `
+      <p style="color: red;">❌ Invalid or missing recipe ID.</p>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/recipes/detail/${id}`);
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    const data = await res.json();
+
+    document.getElementById("recipeDetail").innerHTML = `
+      <h2>${data.title || "Untitled"}</h2>
+      <div class="section"><strong>Cuisine:</strong> ${data.cuisine || "N/A"}</div>
+      <div class="section"><strong>Rating:</strong> ${data.rating || "N/A"}</div>
+      <div class="section"><strong>Total Time:</strong> ${data.total_time || "?"} mins</div>
+      <div class="section"><strong>Description:</strong><br>${data.description || "No description"}</div>
+      <div class="section"><strong>Ingredients:</strong><ul>${
+        Array.isArray(data.ingredients) ? data.ingredients.map(i => `<li>${i}</li>`).join("") : "<li>N/A</li>"
+      }</ul></div>
+      <div class="section"><strong>Instructions:</strong><ol>${
+        Array.isArray(data.instructions) ? data.instructions.map(i => `<li>${i}</li>`).join("") : "<li>N/A</li>"
+      }</ol></div>
+    `;
+  } catch (err) {
+    document.getElementById("recipeDetail").innerHTML = `
+      <p style="color:red;">❌ Failed to load recipe.<br>${err.message}</p>`;
+    console.error(err);
+  }
+})();
+</script>
+
+</body>
+</html>
+
