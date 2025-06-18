@@ -11,7 +11,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -21,11 +20,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+        cache-dependency-path: 5ok/project/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+      working-directory: 5ok/project
+
+    - name: Build
+      run: npm run build --if-present
+      working-directory: 5ok/project
+
+    - name: Test
+      run: npm test
+      working-directory: 5ok/project
